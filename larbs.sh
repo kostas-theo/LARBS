@@ -14,14 +14,15 @@ while getopts ":a:r:b:p:h" o; do case "${o}" in
 	*) printf "Invalid option: -%s\\n" "$OPTARG" && exit 1 ;;
 esac done
 
-[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/lukesmithxyz/voidrice.git"
-[ -z "$progsfile" ] && progsfile="https://raw.githubusercontent.com/LukeSmithxyz/LARBS/master/progs.csv"
+[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/kostas-theo/dotfiles.git"
+[ -z "$progsfile" ] && progsfile="https://raw.githubusercontent.com/kostas-theo/LARBS/master/progs.csv"
 [ -z "$aurhelper" ] && aurhelper="yay"
 [ -z "$repobranch" ] && repobranch="master"
 
 ### FUNCTIONS ###
 
-installpkg(){ pacman --noconfirm --needed -S "$1" >/dev/null 2>&1 ;}
+# temp-disable # installpkg(){ pacman --noconfirm --needed -S "$1" >/dev/null 2>&1 ;}
+installpkg(){ echo "about to install " $1;}
 
 error() { printf "%s\n" "$1" >&2; exit 1; }
 
@@ -150,49 +151,49 @@ finalize(){ \
 ### This is how everything happens in an intuitive format and order.
 
 # Check if user is root on Arch distro. Install dialog.
-pacman --noconfirm --needed -Sy dialog || error "Are you sure you're running this as the root user, are on an Arch-based distribution and have an internet connection?"
+# temp-disable # pacman --noconfirm --needed -Sy dialog || error "Are you sure you're running this as the root user, are on an Arch-based distribution and have an internet connection?"
 
 # Welcome user and pick dotfiles.
-welcomemsg || error "User exited."
+# temp-disable # welcomemsg || error "User exited."
 
 # Get and verify username and password.
-getuserandpass || error "User exited."
+# temp-disable # getuserandpass || error "User exited."
 
 # Give warning if user already exists.
-usercheck || error "User exited."
+# temp-disable # usercheck || error "User exited."
 
 # Last chance for user to back out before install.
-preinstallmsg || error "User exited."
+# temp-disable # preinstallmsg || error "User exited."
 
 ### The rest of the script requires no user input.
 
 # Refresh Arch keyrings.
-refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
+# temp-disable # refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
 
-for x in curl base-devel git ntp zsh; do
-	dialog --title "LARBS Installation" --infobox "Installing \`$x\` which is required to install and configure other programs." 5 70
-	installpkg "$x"
-done
+# temp-disable # for x in curl base-devel git ntp zsh; do
+	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$x\` which is required to install and configure other programs." 5 70
+	# temp-disable # installpkg "$x"
+# temp-disable # done
 
-dialog --title "LARBS Installation" --infobox "Synchronizing system time to ensure successful and secure installation of software..." 4 70
-ntpdate 0.us.pool.ntp.org >/dev/null 2>&1
+# temp-disable # dialog --title "LARBS Installation" --infobox "Synchronizing system time to ensure successful and secure installation of software..." 4 70
+# temp-disable # ntpdate 0.us.pool.ntp.org >/dev/null 2>&1
 
-adduserandpass || error "Error adding username and/or password."
+# temp-disable # adduserandpass || error "Error adding username and/or password."
 
-[ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
+# temp-disable # [ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
 
 # Allow user to run sudo without password. Since AUR programs must be installed
 # in a fakeroot environment, this is required for all builds with AUR.
-newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
+# temp-disable # newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
 # Make pacman and paru colorful and adds eye candy on the progress bar because why not.
-grep -q "^Color" /etc/pacman.conf || sed -i "s/^#Color$/Color/" /etc/pacman.conf
-grep -q "ILoveCandy" /etc/pacman.conf || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
+# temp-disable # grep -q "^Color" /etc/pacman.conf || sed -i "s/^#Color$/Color/" /etc/pacman.conf
+# temp-disable # grep -q "ILoveCandy" /etc/pacman.conf || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 
 # Use all cores for compilation.
-sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+# temp-disable # sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
-manualinstall yay-bin || error "Failed to install AUR helper."
+# temp-disable # manualinstall yay-bin || error "Failed to install AUR helper."
 
 # The command that does all the installing. Reads the progs.csv file and
 # installs each needed program the way required. Be sure to run this only after
@@ -200,55 +201,55 @@ manualinstall yay-bin || error "Failed to install AUR helper."
 # and all build dependencies are installed.
 installationloop
 
-dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra\` to enable color emoji in suckless software without crashes." 5 70
-yes | sudo -u "$name" $aurhelper -S libxft-bgra-git >/dev/null 2>&1
+# temp-disable # dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra\` to enable color emoji in suckless software without crashes." 5 70
+# temp-disable # yes | sudo -u "$name" $aurhelper -S libxft-bgra-git >/dev/null 2>&1
 
 # Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
-rm -f "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+# temp-disable # putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
+# temp-disable # rm -f "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
 # Create default urls file if none exists.
-[ ! -f "/home/$name/.config/newsboat/urls" ] && echo "http://lukesmith.xyz/rss.xml
-https://notrelated.libsyn.com/rss
-https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA \"~Luke Smith (YouTube)\"
-https://www.archlinux.org/feeds/news/" > "/home/$name/.config/newsboat/urls"
+# temp-disable # [ ! -f "/home/$name/.config/newsboat/urls" ] && echo "http://lukesmith.xyz/rss.xml
+# temp-disable # https://notrelated.libsyn.com/rss
+# temp-disable # https://www.youtube.com/feeds/videos.xml?channel_id=UC2eYFnH61tmytImy1mTYvhA \"~Luke Smith (YouTube)\"
+# temp-disable # https://www.archlinux.org/feeds/news/" > "/home/$name/.config/newsboat/urls"
 # make git ignore deleted LICENSE & README.md files
-git update-index --assume-unchanged "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+# temp-disable # git update-index --assume-unchanged "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
 
 # Most important command! Get rid of the beep!
-systembeepoff
+# temp-disable # systembeepoff
 
 # Make zsh the default shell for the user.
-chsh -s /bin/zsh "$name" >/dev/null 2>&1
-sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
+# temp-disable # chsh -s /bin/zsh "$name" >/dev/null 2>&1
+# temp-disable # sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
 
 # dbus UUID must be generated for Artix runit.
-dbus-uuidgen > /var/lib/dbus/machine-id
+# temp-disable # dbus-uuidgen > /var/lib/dbus/machine-id
 
 # Use system notifications for Brave on Artix
-echo "export \$(dbus-launch)" > /etc/profile.d/dbus.sh
+# temp-disable # echo "export \$(dbus-launch)" > /etc/profile.d/dbus.sh
 
 # Tap to click
-[ ! -f /etc/X11/xorg.conf.d/40-libinput.conf ] && printf 'Section "InputClass"
-        Identifier "libinput touchpad catchall"
-        MatchIsTouchpad "on"
-        MatchDevicePath "/dev/input/event*"
-        Driver "libinput"
+# temp-disable # [ ! -f /etc/X11/xorg.conf.d/40-libinput.conf ] && printf 'Section "InputClass"
+        # temp-disable # Identifier "libinput touchpad catchall"
+        # temp-disable # MatchIsTouchpad "on"
+        # temp-disable # MatchDevicePath "/dev/input/event*"
+        # temp-disable # Driver "libinput"
 	# Enable left mouse button by tapping
-	Option "Tapping" "on"
-EndSection' > /etc/X11/xorg.conf.d/40-libinput.conf
+	# temp-disable # Option "Tapping" "on"
+# temp-disable # EndSection' > /etc/X11/xorg.conf.d/40-libinput.conf
 
 # Fix fluidsynth/pulseaudio issue.
-grep -q "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" /etc/conf.d/fluidsynth ||
-	echo "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" >> /etc/conf.d/fluidsynth
+# temp-disable # grep -q "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" /etc/conf.d/fluidsynth ||
+	# temp-disable # echo "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" >> /etc/conf.d/fluidsynth
 
 # Start/restart PulseAudio.
-pkill -15 -x 'pulseaudio'; sudo -u "$name" pulseaudio --start
+# temp-disable # pkill -15 -x 'pulseaudio'; sudo -u "$name" pulseaudio --start
 
 # This line, overwriting the `newperms` command above will allow the user to run
 # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
-newperms "%wheel ALL=(ALL) ALL #LARBS
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/paru,/usr/bin/pacman -Syyuw --noconfirm"
+# temp-disable # newperms "%wheel ALL=(ALL) ALL #LARBS
+# temp-disable # %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/paru,/usr/bin/pacman -Syyuw --noconfirm"
 
 # Last message! Install complete!
-finalize
+# temp-disable # finalize
 clear
