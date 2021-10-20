@@ -21,8 +21,7 @@ esac done
 
 ### FUNCTIONS ###
 
-# temp-disable # installpkg(){ pacman --noconfirm --needed -S "$1" >/dev/null 2>&1 ;}
-installpkg(){ echo "about to install " $1;}
+installpkg(){ pacman --noconfirm --needed -S "$1" >/dev/null 2>&1 ;}
 
 error() { printf "%s\n" "$1" >&2; exit 1; }
 
@@ -86,31 +85,70 @@ manualinstall() { # Installs $1 manually if not installed. Used only for AUR hel
 	cd /tmp || return 1) ;}
 
 maininstall() { # Installs all needed programs from main repo.
-	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
-	installpkg "$1"
+	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	echo "pacman installing $1..."
+	# temp-disable # installpkg "$1"
 	}
 
-gitmakeinstall() {
-	progname="$(basename "$1" .git)"
-	dir="$repodir/$progname"
-	dialog --title "LARBS Installation" --infobox "Installing \`$progname\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
-	sudo -u "$name" git clone --depth 1 "$1" "$dir" >/dev/null 2>&1 || { cd "$dir" || return 1 ; sudo -u "$name" git pull --force origin master;}
-	cd "$dir" || exit 1
-	make >/dev/null 2>&1
-	make install >/dev/null 2>&1
-	cd /tmp || return 1 ;}
+# temp-disable # gitmakeinstall() {
+	# temp-disable # progname="$(basename "$1" .git)"
+	# temp-disable # dir="$repodir/$progname"
+	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$progname\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
+	# temp-disable # sudo -u "$name" git clone --depth 1 "$1" "$dir" >/dev/null 2>&1 || { cd "$dir" || return 1 ; sudo -u "$name" git pull --force origin master;}
+	# temp-disable # cd "$dir" || exit 1
+	# temp-disable # make >/dev/null 2>&1
+	# temp-disable # make install >/dev/null 2>&1
+	# temp-disable # cd /tmp || return 1 ;}
 
 aurinstall() { \
-	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
+	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	echo "$aurinstalled" | grep -q "^$1$" && return 1
-	sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
+    echo "yay installing $1..."
+	# temp-disable # sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 	}
 
-pipinstall() { \
-	dialog --title "LARBS Installation" --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
-	[ -x "$(command -v "pip")" ] || installpkg python-pip >/dev/null 2>&1
-	yes | pip install "$1"
-	}
+# temp-disable # pipinstall() { \
+	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
+	# temp-disable # [ -x "$(command -v "pip")" ] || installpkg python-pip >/dev/null 2>&1
+	# temp-disable # yes | pip install "$1"
+	# temp-disable # }
+installaws() {\
+    echo "installing aws..."
+    [ -f /tmp/awscliv2.zip ] || curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+    [ -d /tmp/aws ] || unzip -q /tmp/awscliv2.zip -d /tmp
+    [ -d /usr/local/aws-cli/v2/current ] || sudo /tmp/aws/install
+}
+
+installvimplugged() {\
+    [ -d ${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload ] || sh -c 'curl -fLo "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+}
+
+installzshhistorysubstringearch() {\
+    [ -f ${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/zsh-history-substring-search.zsh ] || sh -c 'curl -fLo "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh'
+}
+
+installacpiconfig() {\
+    ln -s ~/.config/acpi/events/vol-d /etc/acpi/events/vol-d
+    ln -s ~/.config/acpi/events/vol-m /etc/acpi/events/vol-m
+    ln -s ~/.config/acpi/events/vol-u /etc/acpi/events/vol-u
+    ln -s ~/.config/acpi/events/brightness_down /etc/acpi/events/brightness_down
+    ln -s ~/.config/acpi/events/brightness_up /etc/acpi/events/brightness_up
+    ln -s ~/.config/acpi/handlers/brightness /etc/acpi/handlers/brightness
+}
+
+installpoweroptions() {\
+    echo "HandlePowerKey=suspend" | tee -a /etc/systemd/logind.conf
+    echo "HandleLidSwitch=suspend" | tee -a /etc/systemd/logind.conf
+    echo "HandleLidSwitchExternalPower=suspend" | tee -a /etc/systemd/logind.conf
+}
+
+custominstallationloop() {\
+    installaws
+    installvimplugged
+    installzshhistorysubstringearch
+    installacpiconfig
+    installpoweroptions
+}
 
 installationloop() { \
 	([ -f "$progsfile" ] && cp "$progsfile" /tmp/progs.csv) || curl -Ls "$progsfile" | sed '/^#/d' > /tmp/progs.csv
@@ -201,6 +239,8 @@ finalize(){ \
 # and all build dependencies are installed.
 installationloop
 
+custominstallationloop
+
 # temp-disable # dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra\` to enable color emoji in suckless software without crashes." 5 70
 # temp-disable # yes | sudo -u "$name" $aurhelper -S libxft-bgra-git >/dev/null 2>&1
 
@@ -219,7 +259,7 @@ installationloop
 # temp-disable # systembeepoff
 
 # Make zsh the default shell for the user.
-# temp-disable # chsh -s /bin/zsh "$name" >/dev/null 2>&1
+# temp-disable # chsh -s /usr/bin/zsh "$name" >/dev/null 2>&1
 # temp-disable # sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
 
 # dbus UUID must be generated for Artix runit.
@@ -252,4 +292,4 @@ installationloop
 
 # Last message! Install complete!
 # temp-disable # finalize
-clear
+# temp-disable # clear
