@@ -85,33 +85,33 @@ manualinstall() { # Installs $1 manually if not installed. Used only for AUR hel
 	cd /tmp || return 1) ;}
 
 maininstall() { # Installs all needed programs from main repo.
-	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	echo "pacman installing $1..."
-	# temp-disable # installpkg "$1"
+	installpkg "$1"
 	}
 
-# temp-disable # gitmakeinstall() {
-	# temp-disable # progname="$(basename "$1" .git)"
-	# temp-disable # dir="$repodir/$progname"
-	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$progname\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
-	# temp-disable # sudo -u "$name" git clone --depth 1 "$1" "$dir" >/dev/null 2>&1 || { cd "$dir" || return 1 ; sudo -u "$name" git pull --force origin master;}
-	# temp-disable # cd "$dir" || exit 1
-	# temp-disable # make >/dev/null 2>&1
-	# temp-disable # make install >/dev/null 2>&1
-	# temp-disable # cd /tmp || return 1 ;}
+gitmakeinstall() {
+	progname="$(basename "$1" .git)"
+	dir="$repodir/$progname"
+	dialog --title "LARBS Installation" --infobox "Installing \`$progname\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
+	sudo -u "$name" git clone --depth 1 "$1" "$dir" >/dev/null 2>&1 || { cd "$dir" || return 1 ; sudo -u "$name" git pull --force origin master;}
+	cd "$dir" || exit 1
+	make >/dev/null 2>&1
+	make install >/dev/null 2>&1
+	cd /tmp || return 1 ;}
 
 aurinstall() { \
-	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
+	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	echo "$aurinstalled" | grep -q "^$1$" && return 1
     echo "yay installing $1..."
-	# temp-disable # sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
+	sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 	}
 
-# temp-disable # pipinstall() { \
-	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
-	# temp-disable # [ -x "$(command -v "pip")" ] || installpkg python-pip >/dev/null 2>&1
-	# temp-disable # yes | pip install "$1"
-	# temp-disable # }
+pipinstall() { \
+	dialog --title "LARBS Installation" --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
+	[ -x "$(command -v "pip")" ] || installpkg python-pip >/dev/null 2>&1
+	yes | pip install "$1"
+	}
 installaws() {\
     echo "installing aws..."
     [ -f /tmp/awscliv2.zip ] || curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
@@ -192,46 +192,46 @@ finalize(){ \
 # temp-disable # pacman --noconfirm --needed -Sy dialog || error "Are you sure you're running this as the root user, are on an Arch-based distribution and have an internet connection?"
 
 # Welcome user and pick dotfiles.
-# temp-disable # welcomemsg || error "User exited."
+welcomemsg || error "User exited."
 
 # Get and verify username and password.
-# temp-disable # getuserandpass || error "User exited."
+getuserandpass || error "User exited."
 
 # Give warning if user already exists.
-# temp-disable # usercheck || error "User exited."
+usercheck || error "User exited."
 
 # Last chance for user to back out before install.
-# temp-disable # preinstallmsg || error "User exited."
+preinstallmsg || error "User exited."
 
 ### The rest of the script requires no user input.
 
 # Refresh Arch keyrings.
-# temp-disable # refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
+refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
 
-# temp-disable # for x in curl base-devel git ntp zsh; do
-	# temp-disable # dialog --title "LARBS Installation" --infobox "Installing \`$x\` which is required to install and configure other programs." 5 70
-	# temp-disable # installpkg "$x"
-# temp-disable # done
+for x in curl base-devel git ntp zsh; do
+	dialog --title "LARBS Installation" --infobox "Installing \`$x\` which is required to install and configure other programs." 5 70
+	installpkg "$x"
+done
 
 # temp-disable # dialog --title "LARBS Installation" --infobox "Synchronizing system time to ensure successful and secure installation of software..." 4 70
 # temp-disable # ntpdate 0.us.pool.ntp.org >/dev/null 2>&1
 
-# temp-disable # adduserandpass || error "Error adding username and/or password."
+adduserandpass || error "Error adding username and/or password."
 
-# temp-disable # [ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
+[ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
 
 # Allow user to run sudo without password. Since AUR programs must be installed
 # in a fakeroot environment, this is required for all builds with AUR.
-# temp-disable # newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
+newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
 # Make pacman and paru colorful and adds eye candy on the progress bar because why not.
-# temp-disable # grep -q "^Color" /etc/pacman.conf || sed -i "s/^#Color$/Color/" /etc/pacman.conf
-# temp-disable # grep -q "ILoveCandy" /etc/pacman.conf || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
+grep -q "^Color" /etc/pacman.conf || sed -i "s/^#Color$/Color/" /etc/pacman.conf
+grep -q "ILoveCandy" /etc/pacman.conf || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 
 # Use all cores for compilation.
-# temp-disable # sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
-# temp-disable # manualinstall yay-bin || error "Failed to install AUR helper."
+manualinstall yay-bin || error "Failed to install AUR helper."
 
 # The command that does all the installing. Reads the progs.csv file and
 # installs each needed program the way required. Be sure to run this only after
@@ -241,11 +241,11 @@ installationloop
 
 custominstallationloop
 
-# temp-disable # dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra\` to enable color emoji in suckless software without crashes." 5 70
-# temp-disable # yes | sudo -u "$name" $aurhelper -S libxft-bgra-git >/dev/null 2>&1
+dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra\` to enable color emoji in suckless software without crashes." 5 70
+yes | sudo -u "$name" $aurhelper -S libxft-bgra-git >/dev/null 2>&1
 
 # Install the dotfiles in the user's home directory
-# temp-disable # putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
+putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
 # temp-disable # rm -f "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
 # Create default urls file if none exists.
 # temp-disable # [ ! -f "/home/$name/.config/newsboat/urls" ] && echo "http://lukesmith.xyz/rss.xml
@@ -256,40 +256,40 @@ custominstallationloop
 # temp-disable # git update-index --assume-unchanged "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
 
 # Most important command! Get rid of the beep!
-# temp-disable # systembeepoff
+systembeepoff
 
 # Make zsh the default shell for the user.
-# temp-disable # chsh -s /usr/bin/zsh "$name" >/dev/null 2>&1
-# temp-disable # sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
+chsh -s /usr/bin/zsh "$name" >/dev/null 2>&1
+sudo -u "$name" mkdir -p "/home/$name/.cache/zsh/"
 
 # dbus UUID must be generated for Artix runit.
-# temp-disable # dbus-uuidgen > /var/lib/dbus/machine-id
+dbus-uuidgen > /var/lib/dbus/machine-id
 
 # Use system notifications for Brave on Artix
 # temp-disable # echo "export \$(dbus-launch)" > /etc/profile.d/dbus.sh
 
 # Tap to click
-# temp-disable # [ ! -f /etc/X11/xorg.conf.d/40-libinput.conf ] && printf 'Section "InputClass"
-        # temp-disable # Identifier "libinput touchpad catchall"
-        # temp-disable # MatchIsTouchpad "on"
-        # temp-disable # MatchDevicePath "/dev/input/event*"
-        # temp-disable # Driver "libinput"
+[ ! -f /etc/X11/xorg.conf.d/40-libinput.conf ] && printf 'Section "InputClass"
+        Identifier "libinput touchpad catchall"
+        MatchIsTouchpad "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
 	# Enable left mouse button by tapping
-	# temp-disable # Option "Tapping" "on"
-# temp-disable # EndSection' > /etc/X11/xorg.conf.d/40-libinput.conf
+	Option "Tapping" "on"
+EndSection' > /etc/X11/xorg.conf.d/40-libinput.conf
 
 # Fix fluidsynth/pulseaudio issue.
-# temp-disable # grep -q "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" /etc/conf.d/fluidsynth ||
-	# temp-disable # echo "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" >> /etc/conf.d/fluidsynth
+grep -q "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" /etc/conf.d/fluidsynth ||
+	echo "OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'" >> /etc/conf.d/fluidsynth
 
 # Start/restart PulseAudio.
-# temp-disable # pkill -15 -x 'pulseaudio'; sudo -u "$name" pulseaudio --start
+pkill -15 -x 'pulseaudio'; sudo -u "$name" pulseaudio --start
 
 # This line, overwriting the `newperms` command above will allow the user to run
 # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
-# temp-disable # newperms "%wheel ALL=(ALL) ALL #LARBS
+newperms "%wheel ALL=(ALL) ALL #LARBS
 # temp-disable # %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/paru,/usr/bin/pacman -Syyuw --noconfirm"
 
 # Last message! Install complete!
-# temp-disable # finalize
-# temp-disable # clear
+finalize
+clear
