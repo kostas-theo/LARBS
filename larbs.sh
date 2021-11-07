@@ -112,6 +112,7 @@ pipinstall() { \
 	[ -x "$(command -v "pip")" ] || installpkg python-pip >/dev/null 2>&1
 	yes | pip install "$1"
 	}
+
 installaws() {\
     echo "installing aws..."
     [ -f /tmp/awscliv2.zip ] || curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
@@ -120,20 +121,24 @@ installaws() {\
 }
 
 installvimplugged() {\
-    [ -d ${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload ] || sh -c 'curl -fLo "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    [ -d /home/"$name"/.config/nvim/autoload ] || sh -c 'curl -fLo "/home/$name/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+}
+
+installurxvtperls() {\
+    [ -d /home/"$name"/.config/urxvt/ext ] || sh -c 'curl -fLo "/home/$name/.config/urxvt/ext/resize-font --create-dirs https://raw.githubusercontent.com/simmel/urxvt-resize-font/master/resize-font'
 }
 
 installzshhistorysubstringearch() {\
-    [ -f ${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/zsh-history-substring-search.zsh ] || sh -c 'curl -fLo "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh'
+    [ -f /home/"$name"/.config/zsh/functions/zsh-history-substring-search.zsh ] || sh -c 'curl -fLo "/home/$name/.config/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh'
 }
 
 installacpiconfig() {\
-    ln -s ~/.config/acpi/events/vol-d /etc/acpi/events/vol-d
-    ln -s ~/.config/acpi/events/vol-m /etc/acpi/events/vol-m
-    ln -s ~/.config/acpi/events/vol-u /etc/acpi/events/vol-u
-    ln -s ~/.config/acpi/events/brightness_down /etc/acpi/events/brightness_down
-    ln -s ~/.config/acpi/events/brightness_up /etc/acpi/events/brightness_up
-    ln -s ~/.config/acpi/handlers/brightness /etc/acpi/handlers/brightness
+    ln -s /home/"$name"/.config/acpi/events/vol-d /etc/acpi/events/vol-d
+    ln -s /home/"$name"/.config/acpi/events/vol-m /etc/acpi/events/vol-m
+    ln -s /home/"$name"/.config/acpi/events/vol-u /etc/acpi/events/vol-u
+    ln -s /home/"$name"/.config/acpi/events/brightness_down /etc/acpi/events/brightness_down
+    ln -s /home/"$name"/.config/acpi/events/brightness_up /etc/acpi/events/brightness_up
+    ln -s /home/"$name"/.config/acpi/handlers/brightness /etc/acpi/handlers/brightness
 }
 
 installpoweroptions() {\
@@ -145,6 +150,7 @@ installpoweroptions() {\
 custominstallationloop() {\
     installaws
     installvimplugged
+    installurxvtperls
     installzshhistorysubstringearch
     installacpiconfig
     installpoweroptions
@@ -168,12 +174,21 @@ installationloop() { \
 putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwriting conflicts
 	dialog --infobox "Downloading and installing config files..." 4 60
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
-	dir=$(mktemp -d)
-	[ ! -d "$2" ] && mkdir -p "$2"
-	chown "$name":wheel "$dir" "$2"
-	sudo -u "$name" git clone --recursive -b "$branch" --depth 1 --recurse-submodules "$1" "$dir" >/dev/null 2>&1
-	sudo -u "$name" cp -rfT "$dir" "$2"
-	}
+    git clone --bare "$1" -b "$branch" "$2"/.cfg
+    function config {
+       /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" $@
+    }
+    mkdir -p .config-backup
+    config checkout
+    if [ $? = 0 ]; then
+      echo "Checked out config.";
+      else
+        echo "Backing up pre-existing dot files.";
+        config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
+    fi;
+    config checkout
+    config config status.showUntrackedFiles no
+}
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
 	rmmod pcspkr
