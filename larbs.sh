@@ -150,6 +150,19 @@ installrootbashrc() {\
     echo "alias ll='ls -la'" | tee -a /root/.bashrc
 }
 
+installsharedrivesymlinks() {\
+    [ -d /share/Documents ] || sudo -u "$name" mkdir /share/Documents
+    [ -d /share/Music ] || sudo -u "$name" mkdir /share/Music
+    [ -d /share/Pictures ] || sudo -u "$name" mkdir /share/Pictures
+    [ -d /share/Downloads ] || sudo -u "$name" mkdir /share/Downloads
+    [ -d /share/.keepass ] || sudo -u "$name" mkdir /share/.keepass
+    sudo -u "$name" ln -s /share/Documents /home/$name/Documents
+    sudo -u "$name" ln -s /share/Music /home/$name/Music
+    sudo -u "$name" ln -s /share/Pictures /home/$name/Pictures
+    sudo -u "$name" ln -s /share/Downloads /home/$name/Downloads
+    sudo -u "$name" ln -s /share/.keepass /home/$name/.keepass
+}
+
 custominstallationloop() {\
     installaws
     installvimplugged
@@ -158,6 +171,7 @@ custominstallationloop() {\
     installacpiconfig
     installpoweroptions
     installrootbashrc
+    installsharedrivesymlinks
 }
 
 installationloop() { \
