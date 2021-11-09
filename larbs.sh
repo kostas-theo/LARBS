@@ -86,7 +86,6 @@ manualinstall() { # Installs $1 manually if not installed. Used only for AUR hel
 
 maininstall() { # Installs all needed programs from main repo.
 	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
-	echo "pacman installing $1..."
 	installpkg "$1"
 	}
 
@@ -115,21 +114,21 @@ pipinstall() { \
 
 installaws() {\
     echo "installing aws..."
-    [ -f /tmp/awscliv2.zip ] || curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
-    [ -d /tmp/aws ] || unzip -q /tmp/awscliv2.zip -d /tmp
-    [ -d /usr/local/aws-cli/v2/current ] || sudo /tmp/aws/install
+    [ -f /tmp/awscliv2.zip ] || sudo -u "$name" curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+    [ -d /tmp/aws ] || sudo -u "$name" unzip -q /tmp/awscliv2.zip -d /tmp
+    [ -d /usr/local/aws-cli/v2/current ] || sudo -u "$name" sudo /tmp/aws/install
 }
 
 installvimplugged() {\
-    [ -d /home/"$name"/.config/nvim/autoload ] || sh -c 'curl -fLo "/home/$name/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    [ -d /home/"$name"/.config/nvim/autoload ] || sudo -u "$name" curl -fLo /home/$name/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
 installurxvtperls() {\
-    [ -d /home/"$name"/.config/urxvt/ext ] || sh -c 'curl -fLo "/home/$name/.config/urxvt/ext/resize-font --create-dirs https://raw.githubusercontent.com/simmel/urxvt-resize-font/master/resize-font'
+    [ -d /home/"$name"/.config/urxvt/ext ] || sudo -u "$name" curl -fLo /home/$name/.config/urxvt/ext/resize-font --create-dirs https://raw.githubusercontent.com/simmel/urxvt-resize-font/master/resize-font
 }
 
 installzshhistorysubstringearch() {\
-    [ -f /home/"$name"/.config/zsh/functions/zsh-history-substring-search.zsh ] || sh -c 'curl -fLo "/home/$name/.config/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh'
+    [ -f /home/"$name"/.config/zsh/functions/zsh-history-substring-search.zsh ] || sudo -u "$name" curl -fLo /home/$name/.config/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
 }
 
 installacpiconfig() {\
@@ -147,6 +146,10 @@ installpoweroptions() {\
     echo "HandleLidSwitchExternalPower=suspend" | tee -a /etc/systemd/logind.conf
 }
 
+installrootbashrc() {\
+    echo "alias ll='ls -la'" | tee -a /root/.bashrc
+}
+
 custominstallationloop() {\
     installaws
     installvimplugged
@@ -154,6 +157,7 @@ custominstallationloop() {\
     installzshhistorysubstringearch
     installacpiconfig
     installpoweroptions
+    installrootbashrc
 }
 
 installationloop() { \
@@ -174,20 +178,20 @@ installationloop() { \
 putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwriting conflicts
 	dialog --infobox "Downloading and installing config files..." 4 60
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
-    git clone --bare "$1" -b "$branch" "$2"/.cfg
+    sudo -u "$name" git clone --bare "$1" -b "$branch" "$2"/.cfg
     function config {
        /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" $@
     }
-    mkdir -p .config-backup
-    config checkout
+    sudo -u "$name" mkdir -p .config-backup
+    sudo -u "$name" config checkout
     if [ $? = 0 ]; then
       echo "Checked out config.";
       else
         echo "Backing up pre-existing dot files.";
-        config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
+        sudo -u "$name" config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
     fi;
-    config checkout
-    config config status.showUntrackedFiles no
+    sudo -u "$name" config checkout
+    sudo -u "$name" config config status.showUntrackedFiles no
 }
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
