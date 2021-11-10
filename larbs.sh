@@ -130,7 +130,7 @@ installzshhistorysubstringearch() {\
 }
 
 installzshsyntaxhighlighting() {\
-    [ -f /home/"$name"/.config/zsh/functions/zsh-syntax-highlighting.zsh ] || sudo -u "$name" curl -fLo /home/$name/.config/zsh/functions/zsh-syntax-highlighting.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-syntax-highlighting/master/zsh-syntax-highlighting.zsh
+    [ -f /home/"$name"/.config/zsh/functions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] || sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/zsh-syntax-highlighting/
 }
 
 installacpiconfig() {\
@@ -197,7 +197,7 @@ putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwrit
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
     sudo -u "$name" git clone --bare "$1" -b "$branch" "$2"/.cfg
     function config {
-       /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" $@
+       /usr/bin/git --git-dir="$2"/.cfg --work-tree="$2" $@
     }
     sudo -u "$name" mkdir -p .config-backup
     sudo -u "$name" config checkout
