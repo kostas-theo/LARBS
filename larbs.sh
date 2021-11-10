@@ -102,7 +102,6 @@ gitmakeinstall() {
 aurinstall() { \
 	dialog --title "LARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	echo "$aurinstalled" | grep -q "^$1$" && return 1
-    echo "yay installing $1..."
 	sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 	}
 
@@ -113,7 +112,6 @@ pipinstall() { \
 	}
 
 installaws() {\
-    echo "installing aws..."
     [ -f /tmp/awscliv2.zip ] || sudo -u "$name" curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
     [ -d /tmp/aws ] || sudo -u "$name" unzip -q /tmp/awscliv2.zip -d /tmp
     [ -d /usr/local/aws-cli/v2/current ] || sudo -u "$name" sudo /tmp/aws/install
@@ -129,6 +127,10 @@ installurxvtperls() {\
 
 installzshhistorysubstringearch() {\
     [ -f /home/"$name"/.config/zsh/functions/zsh-history-substring-search.zsh ] || sudo -u "$name" curl -fLo /home/$name/.config/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
+}
+
+installzshsyntaxhighlighting() {\
+    [ -f /home/"$name"/.config/zsh/functions/zsh-syntax-highlighting.zsh ] || sudo -u "$name" curl -fLo /home/$name/.config/zsh/functions/zsh-syntax-highlighting.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-syntax-highlighting/master/zsh-syntax-highlighting.zsh
 }
 
 installacpiconfig() {\
@@ -168,6 +170,7 @@ custominstallationloop() {\
     installvimplugged
     installurxvtperls
     installzshhistorysubstringearch
+    installzshsyntaxhighlighting
     installacpiconfig
     installpoweroptions
     installrootbashrc
