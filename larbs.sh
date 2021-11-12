@@ -127,12 +127,12 @@ installurxvtperls() {\
 
 installzshhistorysubstringearch() {\
     installfile="/home/$name/.config/zsh/functions/zsh-history-substring-search.zsh"
-    [ -f  $installfile] || sudo -u "$name" curl -fLo "$installfile" --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
+    [ -f  $installfile ] || sudo -u "$name" curl -fLo "$installfile" --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
 }
 
 installzshsyntaxhighlighting() {\
     installdir="/home/$name/.config/zsh/functions/zsh-syntax-highlighting"
-    [ -d $installdir ] || (mkdir "$installdir" && sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$installdir")
+    [ -d $installdir ] || (sudo -u "$name" mkdir "$installdir" && sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$installdir")
 }
 
 installacpiconfig() {\
