@@ -286,8 +286,6 @@ manualinstall yay-bin || error "Failed to install AUR helper."
 # and all build dependencies are installed.
 installationloop
 
-custominstallationloop
-
 dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra\` to enable color emoji in suckless software without crashes." 5 70
 yes | sudo -u "$name" $aurhelper -S libxft-bgra-git >/dev/null 2>&1
 
@@ -301,6 +299,7 @@ putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
 # temp-disable # https://www.archlinux.org/feeds/news/" > "/home/$name/.config/newsboat/urls"
 # make git ignore deleted LICENSE & README.md files
 # temp-disable # git update-index --assume-unchanged "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+custominstallationloop
 
 # Most important command! Get rid of the beep!
 systembeepoff
