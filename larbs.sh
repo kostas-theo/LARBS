@@ -207,9 +207,9 @@ installationloop() { \
 putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwriting conflicts
 	dialog --infobox "Downloading and installing config files..." 4 60
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
-    sudo -u "$name" git clone --bare "$1" -b "$branch" "$2"/.cfg
+    sudo -u "$name" git clone --bare "$1" -b "$branch" "$2"/.cfg/
     function config {
-       sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg --work-tree="$2" $@
+       sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" $@
     }
     sudo -u "$name" mkdir -p /home/$name/.config-backup
     config checkout
