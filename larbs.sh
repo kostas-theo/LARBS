@@ -209,17 +209,17 @@ putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwrit
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
     sudo -u "$name" git clone --bare "$1" -b "$branch" "$2"/.cfg
     function config {
-       /usr/bin/git --git-dir="$2"/.cfg --work-tree="$2" $@
+       sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg --work-tree="$2" $@
     }
-    sudo -u "$name" mkdir -p .config-backup
-    sudo -u "$name" config checkout
+    sudo -u "$name" mkdir -p /home/$name/.config-backup
+    config checkout
     if [ $? = 0 ]; then
       echo "Checked out config.";
       else
         echo "Backing up pre-existing dot files.";
-        sudo -u "$name" config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
+        config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} /home/$name/.config-backup/{}
     fi;
-    sudo -u "$name" config checkout
+    config checkout
 }
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
