@@ -130,7 +130,7 @@ installzshhistorysubstringearch() {\
 }
 
 installzshsyntaxhighlighting() {\
-    [ -f /home/"$name"/.config/zsh/functions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] || sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/zsh-syntax-highlighting/
+    [ -d /home/"$name"/.config/zsh/functions/zsh-syntax-highlighting ] || sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/zsh-syntax-highlighting/
 }
 
 installacpiconfig() {\
@@ -208,7 +208,6 @@ putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwrit
         sudo -u "$name" config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
     fi;
     sudo -u "$name" config checkout
-    sudo -u "$name" config config status.showUntrackedFiles no
 }
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
