@@ -126,20 +126,22 @@ installurxvtperls() {\
 }
 
 installzshhistorysubstringearch() {\
-    [ -f /home/"$name"/.config/zsh/functions/zsh-history-substring-search.zsh ] || sudo -u "$name" curl -fLo /home/$name/.config/zsh/functions/zsh-history-substring-search.zsh --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
+    installfile="/home/$name/.config/zsh/functions/zsh-history-substring-search.zsh"
+    [ -f  $installfile] || sudo -u "$name" curl -fLo "$installfile" --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
 }
 
 installzshsyntaxhighlighting() {\
-    [ -d /home/"$name"/.config/zsh/functions/zsh-syntax-highlighting ] || sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/zsh-syntax-highlighting/
+    installdir="/home/$name/.config/zsh/functions/zsh-syntax-highlighting"
+    [ -d $installdir ] || (mkdir "$installdir" && sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$installdir")
 }
 
 installacpiconfig() {\
-    ln -s /home/"$name"/.config/acpi/events/vol-d /etc/acpi/events/vol-d
-    ln -s /home/"$name"/.config/acpi/events/vol-m /etc/acpi/events/vol-m
-    ln -s /home/"$name"/.config/acpi/events/vol-u /etc/acpi/events/vol-u
-    ln -s /home/"$name"/.config/acpi/events/brightness_down /etc/acpi/events/brightness_down
-    ln -s /home/"$name"/.config/acpi/events/brightness_up /etc/acpi/events/brightness_up
-    ln -s /home/"$name"/.config/acpi/handlers/brightness /etc/acpi/handlers/brightness
+    [ -f "/etc/acpi/events/vol-d" ] || ln -s /home/"$name"/.config/acpi/events/vol-d /etc/acpi/events/vol-d
+    [ -f "/etc/acpi/events/vol-m" ] || ln -s /home/"$name"/.config/acpi/events/vol-m /etc/acpi/events/vol-m
+    [ -f "/etc/acpi/events/vol-u" ] || ln -s /home/"$name"/.config/acpi/events/vol-u /etc/acpi/events/vol-u
+    [ -f "/etc/acpi/events/brightness_down" ] || ln -s /home/"$name"/.config/acpi/events/brightness_down /etc/acpi/events/brightness_down
+    [ -f "/etc/acpi/events/brightness_up" ] || ln -s /home/"$name"/.config/acpi/events/brightness_up /etc/acpi/events/brightness_up
+    [ -f "/etc/acpi/handlers/brightness" ] || ln -s /home/"$name"/.config/acpi/handlers/brightness /etc/acpi/handlers/brightness
 }
 
 installpoweroptions() {\
@@ -149,6 +151,7 @@ installpoweroptions() {\
 }
 
 installrootbashrc() {\
+    rm /root/.bashrc
     echo "alias ll='ls -la'" | tee -a /root/.bashrc
 }
 
@@ -158,11 +161,11 @@ installsharedrivesymlinks() {\
     [ -d /share/Pictures ] || sudo -u "$name" mkdir /share/Pictures
     [ -d /share/Downloads ] || sudo -u "$name" mkdir /share/Downloads
     [ -d /share/.keepass ] || sudo -u "$name" mkdir /share/.keepass
-    sudo -u "$name" ln -s /share/Documents /home/$name/Documents
-    sudo -u "$name" ln -s /share/Music /home/$name/Music
-    sudo -u "$name" ln -s /share/Pictures /home/$name/Pictures
-    sudo -u "$name" ln -s /share/Downloads /home/$name/Downloads
-    sudo -u "$name" ln -s /share/.keepass /home/$name/.keepass
+    [ -d /home/$name/Documents ] || sudo -u "$name" ln -s /share/Documents /home/$name/Documents
+    [ -d /home/$name/Music ] || sudo -u "$name" ln -s /share/Music /home/$name/Music
+    [ -d /home/$name/Pictures ] || sudo -u "$name" ln -s /share/Pictures /home/$name/Pictures
+    [ -d /home/$name/Downloads ] || sudo -u "$name" ln -s /share/Downloads /home/$name/Downloads
+    [ -d /home/$name/.keepass ] || sudo -u "$name" ln -s /share/.keepass /home/$name/.keepass
 }
 
 custominstallationloop() {\
