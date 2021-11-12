@@ -167,14 +167,23 @@ installsharedrivesymlinks() {\
 
 custominstallationloop() {\
     installaws
+    sleep 5
     installvimplugged
+    sleep 5
     installurxvtperls
+    sleep 5
     installzshhistorysubstringearch
+    sleep 5
     installzshsyntaxhighlighting
+    sleep 5
     installacpiconfig
+    sleep 5
     installpoweroptions
+    sleep 5
     installrootbashrc
+    sleep 5
     installsharedrivesymlinks
+    sleep 5
 }
 
 installationloop() { \
@@ -327,4 +336,5 @@ newperms "%wheel ALL=(ALL) ALL #LARBS
 
 # Last message! Install complete!
 finalize
+sudo -u "$name" git --git-dir=$HOME/.cfg --work-tree=$HOME checkout
 clear
