@@ -68,5 +68,6 @@
 ,autorandr,"forget"
 ,wimlib,"extract, create, and modify WIM files for Windows installs"
 A,tff-iosevka,"forget"
-A,urxt-resize-font-git,"forget"
-A,zsh-syntax-highlighting,"forget"
+A,urxvt-resize-font-git,"urxvt terminal font resizing plugin"
+A,zsh-syntax-highlighting,"syntax highlighting in zsh shell"
+A,zsh-history-substring-search,"command auto search utility for zsh shell"

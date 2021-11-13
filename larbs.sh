@@ -121,20 +121,6 @@ installvimplugged() {\
     [ -d /home/"$name"/.config/nvim/autoload ] || sudo -u "$name" curl -fLo /home/$name/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
-installurxvtperls() {\
-    [ -d /home/"$name"/.config/urxvt/ext ] || sudo -u "$name" curl -fLo /home/$name/.config/urxvt/ext/resize-font --create-dirs https://raw.githubusercontent.com/simmel/urxvt-resize-font/master/resize-font
-}
-
-installzshhistorysubstringearch() {\
-    installfile="/home/$name/.config/zsh/functions/zsh-history-substring-search.zsh"
-    [ -f  $installfile ] || sudo -u "$name" curl -fLo "$installfile" --create-dirs https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/master/zsh-history-substring-search.zsh
-}
-
-installzshsyntaxhighlighting() {\
-    installdir="/home/$name/.config/zsh/functions/zsh-syntax-highlighting"
-    [ -d $installdir ] || (sudo -u "$name" mkdir "$installdir" && sudo -u "$name" git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$installdir")
-}
-
 installacpiconfig() {\
     [ -f "/etc/acpi/events/vol-d" ] || ln -s /home/"$name"/.config/acpi/events/vol-d /etc/acpi/events/vol-d
     [ -f "/etc/acpi/events/vol-m" ] || ln -s /home/"$name"/.config/acpi/events/vol-m /etc/acpi/events/vol-m
@@ -170,23 +156,11 @@ installsharedrivesymlinks() {\
 
 custominstallationloop() {\
     installaws
-    sleep 5
     installvimplugged
-    sleep 5
-    installurxvtperls
-    sleep 5
-    installzshhistorysubstringearch
-    sleep 5
-    installzshsyntaxhighlighting
-    sleep 5
     installacpiconfig
-    sleep 5
     installpoweroptions
-    sleep 5
     installrootbashrc
-    sleep 5
     installsharedrivesymlinks
-    sleep 5
 }
 
 installationloop() { \
@@ -208,18 +182,15 @@ putgitrepo() { # Downloads a gitrepo $1 and places the files in $2 only overwrit
 	dialog --infobox "Downloading and installing config files..." 4 60
 	[ -z "$3" ] && branch="master" || branch="$repobranch"
     sudo -u "$name" git clone --bare "$1" -b "$branch" "$2"/.cfg/
-    function config {
-       sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" $@
-    }
     sudo -u "$name" mkdir -p /home/$name/.config-backup
-    config checkout
+    sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" checkout
     if [ $? = 0 ]; then
       echo "Checked out config.";
       else
         echo "Backing up pre-existing dot files.";
-        config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} /home/$name/.config-backup/{}
+        sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} /home/$name/.config-backup/{}
     fi;
-    config checkout
+    sudo -u "$name" /usr/bin/git --git-dir="$2"/.cfg/ --work-tree="$2" checkout
 }
 
 systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
