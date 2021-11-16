@@ -117,10 +117,6 @@ installaws() {\
     [ -d /usr/local/aws-cli/v2/current ] || sudo -u "$name" sudo /tmp/aws/install
 }
 
-installvimplugged() {\
-    [ -d /home/"$name"/.config/nvim/autoload ] || sudo -u "$name" curl -fLo /home/$name/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-}
-
 installacpiconfig() {\
     [ -f "/etc/acpi/events/vol-d" ] || ln -s /home/"$name"/.config/acpi/events/vol-d /etc/acpi/events/vol-d
     [ -f "/etc/acpi/events/vol-m" ] || ln -s /home/"$name"/.config/acpi/events/vol-m /etc/acpi/events/vol-m
@@ -156,7 +152,6 @@ installsharedrivesymlinks() {\
 
 custominstallationloop() {\
     installaws
-    installvimplugged
     installacpiconfig
     installpoweroptions
     installrootbashrc
@@ -272,6 +267,9 @@ putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
 # temp-disable # git update-index --assume-unchanged "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
 custominstallationloop
 
+# Install all vim-plug plugins listed in init.vim file
+sudo -u "$name" vim +'PlugInstall --sync' +qall &> /dev/null
+
 # Most important command! Get rid of the beep!
 systembeepoff
 
@@ -309,5 +307,4 @@ newperms "%wheel ALL=(ALL) ALL #LARBS
 
 # Last message! Install complete!
 finalize
-sudo -u "$name" git --git-dir=$HOME/.cfg --work-tree=$HOME checkout
 clear
